@@ -1,0 +1,5 @@
+#!/bin/bash
+
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --kiosk --pack-extension=src/ --pack-extension-key=last-dribbble.pem
+
+mv src.crx last-dribbble.crx
