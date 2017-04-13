@@ -37,7 +37,7 @@ function addDot($node) {
 
 function dotify(lastId) {
   var $dribbbles = $(SELECTOR + '#' + lastId).prevAll();
-  if ($dribbbles.length === 0) {
+  if ($dribbbles.length === 0 && $('#' + lastId).length === 0) {
     $dribbbles = $(SELECTOR);
   }
   $dribbbles.each(function() {
@@ -55,7 +55,9 @@ var DOTIFIED = 'dotified';
 
 var lastId = localStorage.getItem(STORAGE_KEY);
 
-dotify(lastId)
+if (lastId) {
+  dotify(lastId)
+}
 
 var firstId = $(SELECTOR).first().attr('id');
 localStorage.setItem(STORAGE_KEY, firstId);
