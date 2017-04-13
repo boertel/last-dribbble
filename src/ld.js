@@ -1,25 +1,10 @@
-var STORAGE_KEY = 'last' + location.pathname;
-
-function markOldDribbbles() {
-  $('ol.dribbbles li#' + lastId).nextAll().find('div.dribbble').css('background-color', '#eee');
-  $('#' + lastId).find('div.dribbble').css('background-color', '#eee');
+function getId() {
+  var pathname = location.pathname;
+  if (pathname === '/shots') {
+    return pathname + location.search;
+  }
+  return pathname;
 }
-
-
-var lastId = localStorage.getItem(STORAGE_KEY);
-
-if (lastId) {
-  markOldDribbbles()
-}
-
-var dribbbles = $('ol.dribbbles li');
-var firstId = dribbbles.first().attr('id');
-
-localStorage.setItem(STORAGE_KEY, firstId);
-
-$(document).on('mouseover', 'ol.dribbbles li', function() { $(this).find('div.dribbble').css('background-color', '#fff'); })
-           .on('mouseout', 'ol.dribbbles li', function() { $(this).find('div.dribbble').css('background-color', '#eee'); });
-
 
 function monkeyPatch() {
   var monkeyPatchOnAfterAppend = window.Dribbble.Screenshots.infiniteScroller.onAfterAppend
@@ -35,9 +20,53 @@ function injectJS() {
   (document.body || document.head || document.documentElement).appendChild(script);
 }
 
-window.addEventListener("message", function(evt) {
+function addDot($node) {
+  var radius = 10;
+  var $dot = $('<a />').addClass(DOTIFIED)
+    .css({
+    backgroundColor: COLOR,
+    width: radius,
+    height: radius,
+    borderRadius: radius,
+    display: 'inline-block',
+    marginLeft: 6,
+  });
+
+  $node.find('.extras').prepend($dot)
+}
+
+function dotify(lastId) {
+  var $dribbbles = $(SELECTOR + '#' + lastId).prevAll();
+  if ($dribbbles.length === 0) {
+    $dribbbles = $(SELECTOR);
+  }
+  $dribbbles.each(function() {
+    if ($(this).find('.' + DOTIFIED).length === 0) {
+      addDot($(this));
+    }
+  });
+}
+
+
+var STORAGE_KEY = 'last' + getId();
+var SELECTOR = 'ol.dribbbles li';
+var COLOR = '#EC4989';
+var DOTIFIED = 'dotified';
+
+var lastId = localStorage.getItem(STORAGE_KEY);
+
+dotify(lastId)
+
+var firstId = $(SELECTOR).first().attr('id');
+localStorage.setItem(STORAGE_KEY, firstId);
+
+
+// Add dot with the last dribbble saw if after the first page
+// need to go through postMessage, since we don't have access to
+// webpage variables `Dribbble` in our case
+window.addEventListener('message', function(evt) {
   if (evt.data.message === 'onAfterAppend') {
-    markOldDribbbles();
+    dotify(lastId)
   }
 })
 
