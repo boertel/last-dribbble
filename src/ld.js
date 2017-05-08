@@ -1,3 +1,9 @@
+var STORAGE_KEY = 'last' + getId();
+var SELECTOR = 'ol.dribbbles > li';
+var COLOR = '#EC4989';
+var DOTIFIED = 'dotified';
+
+
 function getId() {
   var pathname = location.pathname;
   if (pathname === '/shots') {
@@ -30,6 +36,7 @@ function addDot($node) {
     borderRadius: radius,
     display: 'inline-block',
     marginLeft: 6,
+    verticalAlign: 'top',
   });
 
   $node.find('.extras').prepend($dot)
@@ -37,7 +44,7 @@ function addDot($node) {
 
 function dotify(lastId) {
   var $dribbbles = $(SELECTOR + '#' + lastId).prevAll();
-  if ($dribbbles.length === 0 && $('#' + lastId).length === 0) {
+  if ($dribbbles.length === 0 && (lastId && $('#' + lastId).length === 0)) {
     $dribbbles = $(SELECTOR);
   }
   $dribbbles.each(function() {
@@ -48,15 +55,13 @@ function dotify(lastId) {
 }
 
 
-var STORAGE_KEY = 'last' + getId();
-var SELECTOR = 'ol.dribbbles li';
-var COLOR = '#EC4989';
-var DOTIFIED = 'dotified';
-
+localStorage.removeItem('last/boertel')
 var lastId = localStorage.getItem(STORAGE_KEY);
 
 if (lastId) {
   dotify(lastId)
+} else {
+  dotify();
 }
 
 var firstId = $(SELECTOR).first().attr('id');
@@ -73,3 +78,6 @@ window.addEventListener('message', function(evt) {
 })
 
 injectJS();
+
+var style = $('<style>.dribbble-over, .hover-card-parent { display: none; }</style>');
+$('html > head').append(style);
