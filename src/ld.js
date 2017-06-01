@@ -79,5 +79,5 @@ window.addEventListener('message', function(evt) {
 
 injectJS();
 
-var style = $('<style>.dribbble-over, .hover-card-parent { display: none; }</style>');
+var style = $('<style>.dribbble-over, span.hover-card-parent { display: none; }</style>');
 $('html > head').append(style);
