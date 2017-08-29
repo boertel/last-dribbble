@@ -19,7 +19,7 @@ var alreadySeen = [
 
 rules = [
     '.dribbble-over, span.hover-card-parent { display: none; }',
-    alreadySeen.join(',') + ' { opacity: 0.6; }',
+    alreadySeen.join(',') + ' { opacity: 0.5; }',
     alreadySeen.map((selector) => selector + ':hover').join(',') + ' { opacity: 1; }',
 ];
 
