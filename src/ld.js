@@ -1,7 +1,5 @@
 var STORAGE_KEY = 'last' + getId();
 var SELECTOR = 'ol.dribbbles > li';
-var COLOR = '#EC4989';
-var DOTIFIED = 'dotified';
 
 
 function getId() {
@@ -12,72 +10,21 @@ function getId() {
   return pathname;
 }
 
-function monkeyPatch() {
-  var monkeyPatchOnAfterAppend = window.Dribbble.Screenshots.infiniteScroller.onAfterAppend
-  window.Dribbble.Screenshots.infiniteScroller.onAfterAppend = function(evt) {
-    monkeyPatchOnAfterAppend.call(window.Dribbble.Screenshots.infiniteScroller, evt);
-    window.postMessage({message: 'onAfterAppend'}, '*')
-  }
-}
-
-function injectJS() {
-  var script = document.createElement('script');
-  script.appendChild(document.createTextNode('('+ monkeyPatch +')();'));
-  (document.body || document.head || document.documentElement).appendChild(script);
-}
-
-function addDot($node) {
-  var radius = 10;
-  var $dot = $('<a />').addClass(DOTIFIED)
-    .css({
-    backgroundColor: COLOR,
-    width: radius,
-    height: radius,
-    borderRadius: radius,
-    display: 'inline-block',
-    marginLeft: 6,
-    verticalAlign: 'top',
-  });
-
-  $node.find('.extras').prepend($dot)
-}
-
-function dotify(lastId) {
-  var $dribbbles = $(SELECTOR + '#' + lastId).prevAll();
-  if ($dribbbles.length === 0 && (lastId && $('#' + lastId).length === 0)) {
-    $dribbbles = $(SELECTOR);
-  }
-  $dribbbles.each(function() {
-    if ($(this).find('.' + DOTIFIED).length === 0) {
-      addDot($(this));
-    }
-  });
-}
-
-
-localStorage.removeItem('last/boertel')
 var lastId = localStorage.getItem(STORAGE_KEY);
 
-if (lastId) {
-  dotify(lastId)
-} else {
-  dotify();
-}
+var alreadySeen = [
+    SELECTOR + '#' + lastId + ' ~ li',
+    SELECTOR + '#' + lastId
+];
 
-var firstId = $(SELECTOR).first().attr('id');
+rules = [
+    '.dribbble-over, span.hover-card-parent { display: none; }',
+    alreadySeen.join(',') + ' { opacity: 0.6; }',
+    alreadySeen.map((selector) => selector + ':hover').join(',') + ' { opacity: 1; }',
+];
+
+var firstId = $(SELECTOR).first().attr('id')
 localStorage.setItem(STORAGE_KEY, firstId);
 
-
-// Add dot with the last dribbble saw if after the first page
-// need to go through postMessage, since we don't have access to
-// webpage variables `Dribbble` in our case
-window.addEventListener('message', function(evt) {
-  if (evt.data.message === 'onAfterAppend') {
-    dotify(lastId)
-  }
-})
-
-injectJS();
-
-var style = $('<style>.dribbble-over, span.hover-card-parent { display: none; }</style>');
+var style = $('<style>' + rules.join(' ') + '</style>');
 $('html > head').append(style);
